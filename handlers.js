@@ -10,17 +10,19 @@ function home(response, postData) {
 function getDir(response, postData, query){
     var res = {},
         resFiles = [],
-        uploadDir = query.uploadDir || config.upload_dir,
-        filePathBase = path.normalize(uploadDir);
+        queryDir = query.uploadDir,
+        configDir = config.upload_dir,
+        isDirAvailable = checkDir(queryDir),
+        uploadDir;
 
+    uploadDir = isDirAvailable ? queryDir : configDir;
 
-    fs.readdir(filePathBase, function(err, files){
-
+    fs.readdir(uploadDir, function(err, files){
         if ( err ) {
             res.err = true;
         } else {
             files.filter(function(file){
-                var isDirectory = fs.statSync(path.join(filePathBase, file)).isDirectory(),
+                var isDirectory = fs.statSync(path.join(uploadDir, file)).isDirectory(),
                     notDotFile = (file.indexOf('.') !== 0);
 
                 return isDirectory && notDotFile;
@@ -29,36 +31,39 @@ function getDir(response, postData, query){
             });
 
             res.files = resFiles;
-            res.currentDir = filePathBase;
+            res.currentDir = uploadDir;
         }
 
+        response.setHeader('Content-Type', 'application/json');
         response.end(JSON.stringify(res));
     });
+}
+
+function checkDir (dir) {
+    //如果请求查询的路径(queryDir)存在 并且 请求查询的路径是配置路径（configDir）的子目录
+    return ( dir && dir.indexOf(config.upload_dir) == 0);
 }
 
 function upload(response, postData) {
     
     var file                 = JSON.parse(postData),
-        fileRootName         = file.name.split('.').shift(),
-        fileExtension        = file.name.split('.').pop(),
-        filePathBase         = config.upload_dir,
-        fileRootNameWithBase = filePathBase + fileRootName,
+        isDirAvailable       = checkDir(file.uploadDir),
+        filePathBase         = isDirAvailable ? file.uploadDir : config.upload_dir,
+        filePath             = path.join(filePathBase, file.name),
+    
+        fileExtension        = path.extname(file.name),
+        fileRootName         = path.basename(file.name, fileExtension),
+        fileRootNameWithBase = path.join(filePathBase, fileRootName),
+
         fileID               = 2,
         fileBuffer;
 
-
-    if ( file.uploadDir ) {
-        filePath             = path.join(file.uploadDir, file.name);
-    } else {
-        filePath             = path.join(filePathBase, file.name);
+    if ( !config.overideFile ) {
+        while (fs.existsSync(filePath)) {
+            filePath = fileRootNameWithBase + '(' + fileID + ')'+fileExtension;
+            fileID += 1;
+        }
     }
-
-    /*
-    while (fs.existsSync(filePath)) {
-        filePath = fileRootNameWithBase + '(' + fileID + ').' + fileExtension;
-        fileID += 1;
-    }
-    */
     
     file.contents = file.contents.split(',').pop();
     
