@@ -1,4 +1,5 @@
 var config = require('./config'),
+    path = require('path'),
     fs = require('fs');
 
 function home(response, postData) {
@@ -6,21 +7,58 @@ function home(response, postData) {
     response.end(fs.readFileSync('./static/index.html'));
 }
 
+function getDir(response, postData, query){
+    var res = {},
+        resFiles = [],
+        uploadDir = query.uploadDir || config.upload_dir,
+        filePathBase = path.normalize(uploadDir);
+
+
+    fs.readdir(filePathBase, function(err, files){
+
+        if ( err ) {
+            res.err = true;
+        } else {
+            files.filter(function(file){
+                var isDirectory = fs.statSync(path.join(filePathBase, file)).isDirectory(),
+                    notDotFile = (file.indexOf('.') !== 0);
+
+                return isDirectory && notDotFile;
+            }).forEach(function(file){
+                resFiles.push(file);
+            });
+
+            res.files = resFiles;
+            res.currentDir = filePathBase;
+        }
+
+        response.end(JSON.stringify(res));
+    });
+}
+
 function upload(response, postData) {
     
     var file                 = JSON.parse(postData),
         fileRootName         = file.name.split('.').shift(),
         fileExtension        = file.name.split('.').pop(),
-        filePathBase         = config.upload_dir + '/',
+        filePathBase         = config.upload_dir,
         fileRootNameWithBase = filePathBase + fileRootName,
-        filePath             = fileRootNameWithBase + '.' + fileExtension,
         fileID               = 2,
         fileBuffer;
-    
+
+
+    if ( file.uploadDir ) {
+        filePath             = path.join(file.uploadDir, file.name);
+    } else {
+        filePath             = path.join(filePathBase, file.name);
+    }
+
+    /*
     while (fs.existsSync(filePath)) {
         filePath = fileRootNameWithBase + '(' + fileID + ').' + fileExtension;
         fileID += 1;
     }
+    */
     
     file.contents = file.contents.split(',').pop();
     
@@ -49,6 +87,7 @@ function upload(response, postData) {
         fs.writeFileSync(filePath, fileBuffer);
         response.statusCode = 200;
         response.end();
+        console.log('Uploaded: ', filePath);
     }
 }
 
@@ -70,4 +109,5 @@ function serveStatic(response, pathname, postData) {
 
 exports.home = home;
 exports.upload = upload;
+exports.getDir = getDir;
 exports.serveStatic = serveStatic;

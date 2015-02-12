@@ -11,7 +11,9 @@
             locked = false,
             prev_count_files = 0,
             waiting = 0,
+            $uploadDir = $('#J_uploadDir'),
             drop, dropzone, handleNextFile, handleReaderLoad, noopHandler;
+
 
         noopHandler = function(evt) {
             evt.stopPropagation();
@@ -55,6 +57,7 @@
             current_file.name = all_files[current_file_id].name;
             current_file.type = all_files[current_file_id].type;
             current_file.contents = evt.target.result;
+            current_file.uploadDir = $uploadDir.text();
 
             $.post('/upload', JSON.stringify(current_file), function(data, textStatus, jqXHR) {
 

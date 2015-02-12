@@ -7,6 +7,11 @@
 		<link rel="stylesheet" type="text/css" href="css/style.css">
 	</head>
 	<body>
+		<div>
+			<p><label>选择目标路径(<b id="J_currentDir"></b>)：</label><a href="#" class="J_up">返回上一级目录</a></p>
+			<ul id="J_dirList"></ul>
+			<p>自定义上传路径：<span id="J_uploadDir"></span></p>
+		</div>
 		<div id="dropzoneWrap">
 			<div id="dropzone">
 				<span id="dropzoneLabel">Drop the files here...</span>
@@ -15,5 +20,64 @@
 		<div id="footer">
 			Created by <a href="http://www.mertyazicioglu.com" title="Mert Yazicioglu">Mert Yazicioglu</a>
 		</div>
+
+		<script type="text/javascript">
+			(function () {
+				var curDir = $('#J_currentDir'),
+					curDirList = $('#J_dirList'),
+					uploadDirInput = $('#J_uploadDir'),
+					upDir = $('.J_up');
+
+				upDir.click(function () {
+					var cur = curDir.text(),
+						idx = cur.lastIndexOf('/');
+
+					cur = cur.substring(0,idx);
+
+					curDir.text(cur);
+
+					loadDirList(cur);
+				});
+
+
+				loadDirList();
+
+
+				curDirList.delegate('a', 'click', function () {
+					var dir = $(this).data('dir');
+					uploadDirInput.text(dir);
+
+					loadDirList(dir);
+				});
+
+
+				function loadDirList (uploadDir) {
+					$.ajax({
+						type: 'GET',
+						url: '/get-dir',
+						data: {
+							uploadDir: uploadDir
+						},
+						dataType: 'json',
+						success: function(data){
+							var temp = [];
+
+							curDir.text(data.currentDir);
+
+							if ( data.files.length ) {
+								data.files.forEach(function(dir){
+									var absoluteDir = data.currentDir + '/' + dir;
+									temp.push('<li><a href="#" data-dir="'+absoluteDir+'">'+dir+'</a></li>');
+								});
+
+								curDirList.html(temp.join(''));
+							} else {								
+								curDirList.html('文件将上传到此目录');
+							}
+						}
+					});
+				}
+			})();
+		</script>
 	</body>
 </html>

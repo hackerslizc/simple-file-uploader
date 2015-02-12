@@ -7,6 +7,7 @@ function start(route, handle) {
 	function onRequest(request, response) {
 
 		var pathname = url.parse(request.url).pathname,
+			query = (url.parse(request.url, true)).query,
 			postData = '';
 
 		request.setEncoding('utf8');
@@ -16,7 +17,7 @@ function start(route, handle) {
 		});
 
 		request.addListener('end', function () {
-			route(handle, pathname, response, postData);
+			route(handle, pathname, response, postData, query);
 		});
 	}
 

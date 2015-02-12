@@ -3,12 +3,12 @@ function respondWithHTTPCode(response, code) {
 	response.end();
 }
 
-function route(handle, pathname, response, postData) {
+function route(handle, pathname, response, postData, query) {
 
 	var extension = pathname.split('.').pop();
 
 	if ('function' === typeof handle[pathname]) {
-		handle[pathname](response, postData);
+		handle[pathname](response, postData, query);
 	} else if ('css' === extension || 'js' === extension) {
 		handle._static(response, pathname, postData);
 	} else {

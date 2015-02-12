@@ -6,6 +6,7 @@ var server = require('./server'),
 handle["/"] = handlers.home;
 handle["/home"] = handlers.home;
 handle["/upload"] = handlers.upload;
+handle["/get-dir"] = handlers.getDir;
 handle._static = handlers.serveStatic;
 
 server.start(router.route, handle);
