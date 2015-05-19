@@ -1,5 +1,6 @@
 var config = require('./config'),
     path = require('path'),
+    querystring = require('querystring'),
     fs = require('fs');
 
 function home(response, postData) {
@@ -17,17 +18,24 @@ function getDir(response, postData, query){
 
     uploadDir = isDirAvailable ? queryDir : configDir;
 
+    console.log(uploadDir)
+
     fs.readdir(uploadDir, function(err, files){
         if ( err ) {
             res.err = true;
         } else {
+            /*
             files.filter(function(file){
                 var isDirectory = fs.statSync(path.join(uploadDir, file)).isDirectory(),
                     notDotFile = (file.indexOf('.') !== 0);
 
                 return isDirectory && notDotFile;
-            }).forEach(function(file){
-                resFiles.push(file);
+            })
+            */
+            files.forEach(function(file){
+                var isDirectory = fs.statSync(path.join(uploadDir, file)).isDirectory();
+
+                resFiles.push({isDir: isDirectory, name: file});
             });
 
             res.files = resFiles;
@@ -112,6 +120,35 @@ function serveStatic(response, pathname, postData) {
     response.end(fs.readFileSync('./static' + pathname));
 }
 
+
+function del(response, postData, query){
+    var rimraf = require('rimraf');
+
+    postData = querystring.parse(postData);
+
+    var tarDir = postData.target,
+        configDir = config.upload_dir,
+        isDirAvailable = checkDir(tarDir);
+
+    fs.exists(tarDir, function(isExist){
+        if ( isExist && isDirAvailable ) {            
+            fs.unlink(tarDir, function(r){
+                console.log((new Date).toJSON() + ' 删除了文件：', tarDir);
+                resJSON(response, {status: 1, data: {}, msg: ''});
+            });
+        } else {
+            resJSON(response, {status:0, data:{tarDir: tarDir}, msg: 'file not exits or not available'});
+        }
+    });
+}
+
+function resJSON(res, data){
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
+}
+
+
+exports.del = del;
 exports.home = home;
 exports.upload = upload;
 exports.getDir = getDir;

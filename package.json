@@ -1,0 +1,7 @@
+{
+  "name": "simple-uploader",
+  "author": "fiture.cn@gmail.com",
+  "dependencies": {
+    "rimraf": "^2.3.4"
+  }
+}

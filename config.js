@@ -1,7 +1,7 @@
 var config = {
     port: 8000,
     overideFile: true,
-    base_dir: '/home/fiture/workspace/simple-file-uploader'
+    base_dir: '/home/fiture/workspace/code/simple-file-uploader/uploads'
 };
 
 exports.port = config.port;

@@ -18,9 +18,11 @@
 
 
 
-			me.$back.click(function () {
+			me.$back.click(function (e) {
 				var cur = me.$curDir.text(),
 					idx = cur.lastIndexOf('/');
+
+				e.preventDefault();
 
 				cur = cur.substring(0,idx);
 				me.$curDir.text(cur);
@@ -28,8 +30,46 @@
 				me.loadDirInfo(cur);
 			});
 
-			me.$dirList.delegate('a', 'click', function () {
-				me.loadDirInfo($(this).data('dir'));
+			me.$dirList.delegate('a', 'click', function (e) {
+				e.preventDefault();
+
+				var $t = $(this),
+					dir = $t.data('dir');
+
+				if ( !$t.data('isdir') ) {
+					if ( this.className.match('J_del')) {
+						var fileName = $t.prev().text();
+						var confirm = window.confirm('确定删除文件：“' + fileName + '” ？');
+
+						if ( confirm ) {
+							me.del(dir, function(){
+								$t.closest('li').remove();
+							});
+						}
+					}
+				} else {
+					me.loadDirInfo(dir);
+				}
+
+			});
+		},
+
+		del: function(dir, callback){
+			var me = this;
+
+			$.ajax({
+				type: 'POST',
+				url: 'del',
+				data: {
+					target: dir
+				}	
+			}).done(function(r){
+				if ( r.status ) {
+					callback && callback();
+					//me.loadDirInfo(me.$curDir.text())
+				} else {
+					alert('Delete Error！Msg: ' + r.msg);
+				}
 			});
 		},
 
@@ -67,9 +107,19 @@
 			this.$curDir.text(currentDir);
 			
 			if ( directories.length ) {
-				directories.forEach(function(dir){
-					var absoluteDir = currentDir + '/' + dir;
-					temp.push('<li><a href="#" data-dir="'+absoluteDir+'">'+dir+'</a></li>');
+				directories.forEach(function(obj){
+
+					var tmpHTML = '';
+
+					var absoluteDir = currentDir + '/' + obj.name;
+
+					if (obj.isDir) {
+						tmpHTML = '<li><a href="#" data-isdir="'+obj.isDir+'" data-dir="'+absoluteDir+'">'+obj.name+'</a></li>';
+					} else {						
+						tmpHTML = '<li><span>'+obj.name+'</span> <a href="#" class="J_del del-btn" data-dir="'+absoluteDir+'">X</a></li>';
+					}
+
+					temp.push(tmpHTML);
 				});
 			}
 			this.$dirList.html(temp.join(''));
