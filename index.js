@@ -4,6 +4,7 @@ var server = require('./server'),
     handle = {};
 
 handle['/'] = handlers.home;
+handle['/dev.html'] = handlers.dev;
 handle['/home'] = handlers.home;
 handle['/upload'] = handlers.upload;
 handle['/get-dir'] = handlers.getDir;

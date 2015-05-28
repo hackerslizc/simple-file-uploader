@@ -8,6 +8,11 @@ function home(response, postData) {
     response.end(fs.readFileSync('./static/index.html'));
 }
 
+function dev(response, postData) {
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    response.end(fs.readFileSync('./static/dev.html'));
+}
+
 function getDir(response, postData, query){
     var res = {},
         resFiles = [],
@@ -149,6 +154,7 @@ function resJSON(res, data){
 
 
 exports.del = del;
+exports.dev = dev;
 exports.home = home;
 exports.upload = upload;
 exports.getDir = getDir;
