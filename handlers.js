@@ -21,13 +21,14 @@ function getDir(response, postData, query){
         isDirAvailable = checkDir(queryDir),
         uploadDir;
 
-    uploadDir = isDirAvailable ? queryDir : configDir;
-
-    console.log(uploadDir)
+    uploadDir = isDirAvailable ? queryDir : path.join(__dirname, configDir);
 
     fs.readdir(uploadDir, function(err, files){
         if ( err ) {
             res.err = true;
+            res.uploadDir = uploadDir;
+
+            //console.log(__filename, __dirname)
         } else {
             /*
             files.filter(function(file){
@@ -54,7 +55,7 @@ function getDir(response, postData, query){
 
 function checkDir (dir) {
     //如果请求查询的路径(queryDir)存在 并且 请求查询的路径是配置路径（configDir）的子目录
-    return ( dir && dir.indexOf(config.upload_dir) == 0);
+    return ( dir && dir.indexOf(path.join(__dirname,config.upload_dir)) == 0);
 }
 
 function upload(response, postData) {
@@ -127,15 +128,15 @@ function serveStatic(response, pathname, postData) {
 
 
 function del(response, postData, query){
-    var rimraf = require('rimraf');
+    //var rimraf = require('rimraf');
 
     postData = querystring.parse(postData);
 
-    var tarDir = postData.target,
-        configDir = config.upload_dir,
+    var tarDir = postData.target || path.join(__dirname, config.upload_dir),
         isDirAvailable = checkDir(tarDir);
 
     fs.exists(tarDir, function(isExist){
+        console.log(isExist, isDirAvailable);
         if ( isExist && isDirAvailable ) {            
             fs.unlink(tarDir, function(r){
                 console.log((new Date).toJSON() + ' 删除了文件：', tarDir);

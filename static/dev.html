@@ -4,31 +4,80 @@
     <meta charset="utf-8" />
     <title>WYFE-DEV</title>
     <style type="text/css">
-        body,html,div,ul,p {
+        body,html,div,ul,li,dt,dl,dd,p,span {
             margin: 0;
             padding: 0;
+        }
+
+        ul,ol,li {
+            list-style: none;
         }
 
         body {
             background: #eee;
             padding-top: 50px;
+            color: #666;
+            font-size: 14px;
         }
 
+
+        .file-manager,
         .drag-area {
             margin: auto;
-            width: 80%;
+            width: 600px;
             height: 400px;
             background: #fff;
             border: 2px dashed #aaa;
+        }
+
+        .upload-tip {
+            display: block;
+            text-align: center;
+            top: 50%;
+            position: relative;
+            margin-top: -7px;
+        }
+
+        .file-list > li{
+            background: #f8f8f8;
+            color: #4183c4;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+        }
+
+        .fn-left {
+            float: left;
+        }
+
+        .file-list .status {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .file-manager {
+            border-color: #fff;
+
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .file-manager li.cat-dir {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <script src="./js/lib/react.js"></script>
     <script src="./js/lib/JSXTransformer.js"></script>
+    <script src="./js/jquery-1.8.2.min.js"></script>
     <script type="text/jsx" src="./js/src/app.js"></script>
 
-    <div class="main" id="J_main">
-    </div>
+    <div class="file-manager" id="J_fileManager"></div>
+
+    <div class="main" id="J_main"></div>
+
 </body>
 </html>
