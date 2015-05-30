@@ -52,11 +52,15 @@ var Uploader = React.createClass({
                 xhr: function(){
                     var xhrObj = $.ajaxSettings.xhr();
 
-                    /*
                     xhrObj.upload.onprogress = function(e){
                         var tmp = Math.round(e.loaded / e.total * 100)
+                        files[me.fileIdx].uploaded = tmp;
+
+                        me.setState({
+                            files: files
+                        });
+
                     };
-                    */
 
                     return xhrObj;      
                 }
@@ -115,7 +119,12 @@ var Uploader = React.createClass({
 
         if ( count ) {
             for ( var i = 0; i<count; i++) {
-                fileList.push(<File name={files[i].name} size={files[i].size} status={[files[i].status]} />)
+                fileList.push(
+                    <File name={files[i].name} 
+                          size={files[i].size} 
+                          status={files[i].status}
+                          uploaded={files[i].uploaded} />
+                )
             }
         }
 
@@ -143,13 +152,13 @@ var Uploader = React.createClass({
 
 var File = React.createClass({
     render: function(){
-
-        var status = (this.props.status[0]) ? this.props.status : 'ready';
+        var status = this.props.status || 'ready',
+            uploaded = this.props.uploaded || 0;
 
         return (
             <li>
                 <span className="fn-left">{this.props.name} - {this.props.size/1000} kb</span>
-                <span className="status">{status}</span>
+                <span className="status">{uploaded} - {status}</span>
             </li>
         );
     }
