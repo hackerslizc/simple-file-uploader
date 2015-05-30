@@ -1,3 +1,10 @@
+!function(a){
+    var b=a({});
+    a.subscribe=function(){b.on.apply(b,arguments)},
+    a.unsubscribe=function(){b.off.apply(b,arguments)},
+    a.publish=function(){b.trigger.apply(b,arguments)}
+}(jQuery);
+
 var Uploader = React.createClass({
     getInitialState: function() {
         return {
@@ -41,7 +48,8 @@ var Uploader = React.createClass({
             var curFile = {
                 contents: data,
                 name: files[me.fileIdx].name,
-                type: files[me.fileIdx].type
+                type: files[me.fileIdx].type,
+                uploadDir: me.uploadDir
             }, xhr;
 
             xhr = $.ajax({
@@ -53,20 +61,24 @@ var Uploader = React.createClass({
                     var xhrObj = $.ajaxSettings.xhr();
 
                     xhrObj.upload.onprogress = function(e){
-                        var tmp = Math.round(e.loaded / e.total * 100)
-                        files[me.fileIdx].uploaded = tmp;
+                        var tmp = Math.round(e.loaded / e.total * 100);
 
-                        me.setState({
-                            files: files
-                        });
-
+                        tmp = (tmp == 100) ? 99 : tmp;
+                        updateProgress(tmp)
                     };
+
+                    function updateProgress(progress){
+                        me.state.files[me.fileIdx].uploaded = progress;
+                        me.setState({
+                            files: me.state.files
+                        });
+                    }
 
                     return xhrObj;      
                 }
             });
-
             xhr.done(function(){
+                files[me.fileIdx].uploaded = 100;
                 files[me.fileIdx].status = 'uploaded';
 
                 me.setState({
@@ -103,8 +115,14 @@ var Uploader = React.createClass({
     },
 
     componentDidMount: function(){
+        var me = this;
         this.fileIdx = 0;
         this.onUploading = false;
+
+        $.subscribe('upload-dir-changed', function(e, dir){
+            console.log(dir);
+            me.uploadDir = dir;
+        });
     },
 
     noop: function(e){
@@ -158,7 +176,7 @@ var File = React.createClass({
         return (
             <li>
                 <span className="fn-left">{this.props.name} - {this.props.size/1000} kb</span>
-                <span className="status">{uploaded} - {status}</span>
+                <span className="status">{uploaded}% - {status}</span>
             </li>
         );
     }
@@ -188,6 +206,10 @@ var FileManager = React.createClass({
         xhr.done(function (data) {
             if ( data.err ) {
                 return alert(data.err);
+            }
+
+            if ( me.oriDir != data.currentDir ) {
+                $.publish('upload-dir-changed', data.currentDir)
             }
 
             //缓存原始Dir
@@ -220,6 +242,41 @@ var FileManager = React.createClass({
         this.loadDirInfo(newDir);
     },
 
+    handleDel: function(e){
+        var $el = $(e.currentTarget),
+            curFileName = $el.next().text(),
+            idx = $el.data('idx'),
+            target = this.state.currentDir + '/' + curFileName;
+
+        var bol = confirm('确定删除文件 ' + curFileName + ' ？'),
+            me = this;
+
+        if ( bol ) {
+            this.del(target, function(){
+                me.state.files.splice(idx, 1);
+                me.setState({
+                    files: me.state.files
+                });
+            });
+        }
+    },
+
+    del: function(target, callback){
+        $.ajax({
+            type: 'POST',
+            url: 'del',
+            data: {
+                target: target
+            }   
+        }).done(function(r){
+            if ( r.status ) {
+                callback && callback(r);
+            } else {
+                alert('Delete Error！Msg: ' + r.msg);
+            }
+        });
+    },
+
     render: function(){
         var files = this.state.files,
             len = files.length,
@@ -230,7 +287,12 @@ var FileManager = React.createClass({
             var file = files[i],
                 cls = file.isDir ? 'cat-dir' : 'cat-file';
 
-            fileList.push(<li className={cls} onClick={this.handleItemClick}>{file.name}</li>);
+            fileList.push(
+                <li className={cls} onClick={this.handleItemClick}>
+                    {!file.isDir && <span onClick={this.handleDel} className="del" data-idx={i}>删除</span>}
+
+                    {file.name}
+                </li>);
         }
 
         return (
@@ -240,13 +302,13 @@ var FileManager = React.createClass({
                 </dt>
                 <dd>
                     <p>当前路径文件列表：</p>
-                    <ul>
+                    <ul className="file-list">
                         {
                             showBackNav &&
                             <p><a href="#" onClick={this.handleBack}>返回上一级目录</a></p>
                         }
                         {
-                            fileList.length ? fileList : '空'
+                            fileList.length ? fileList : '当前目录为空'
                         }
                     </ul>
                 </dd>
