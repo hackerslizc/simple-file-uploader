@@ -71,6 +71,8 @@ body {
 .container .file-manager {
     float: left;
     width: 300px;
+    height: 400px;
+    overflow: auto;
 }
 
 .container .main { 
@@ -97,4 +99,11 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+
+.msg-console {
+  max-height: 300px;
+  overflow: auto;
+  background: #fff;
 }

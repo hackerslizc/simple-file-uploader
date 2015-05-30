@@ -5,6 +5,13 @@
     a.publish=function(){b.trigger.apply(b,arguments)}
 }(jQuery);
 
+
+function prependMsg(msg){
+    var $dis = $('#J_msgConsole');
+
+    $dis.prepend(msg + '\n\n\n\n');
+};
+
 var Uploader = React.createClass({
     getInitialState: function() {
         return {
@@ -282,6 +289,8 @@ var FileManager = React.createClass({
                 me.setState({
                     files: me.state.files
                 });
+
+                prependMsg('删除' + curFileName + '成功');
             });
         }
     },
@@ -293,8 +302,9 @@ var FileManager = React.createClass({
             me = this;
 
         this.dev(target, function(r){
-            alert('部署成功，请打开控制台查看日志');
-            console.log(r.msg);
+            me.loadDirInfo(me.state.currentDir);
+            prependMsg(r.msg);
+            prependMsg('部署成功！');
         });
     },
 
@@ -348,9 +358,13 @@ var FileManager = React.createClass({
 
             fileList.push(
                 <li className={cls} onClick={this.handleItemClick}>
-                    {!file.isDir && <span onClick={this.handleDel} className="del" data-idx={i}>删除</span>}
 
-                    {bol && <span onClick={this.handleDev} className="dev">解压部署</span>}
+                    {
+                        bol && <span onClick={this.handleDev} className="dev del">部署</span>
+                    }
+                    {                        
+                        (!file.isDir && !bol) && <span onClick={this.handleDel} className="del" data-idx={i}>删除</span>
+                    }
 
                     <span className="file-name" title={file.name}>{file.name}</span>
                 </li>);
