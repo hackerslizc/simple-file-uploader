@@ -81,6 +81,8 @@ var Uploader = React.createClass({
                 files[me.fileIdx].uploaded = 100;
                 files[me.fileIdx].status = 'uploaded';
 
+                $.publish('file-uploaded', {name: files[me.fileIdx].name, isDir: false});
+
                 me.setState({
                     files: me.state.files
                 }, function(){
@@ -191,7 +193,30 @@ var FileManager = React.createClass({
     },
 
     componentDidMount: function(){
+        var me = this;
+
         this.loadDirInfo();
+        $.subscribe('file-uploaded', function(e, file){
+
+            if ( fileExits(file) ) return;
+
+            me.state.files.push(file);
+
+            me.setState({
+                files: me.state.files
+            });
+        });
+
+
+        function fileExits(file){
+            for ( var i in me.state.files ) {
+                if ( me.state.files[i].name === file.name) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     },
 
     loadDirInfo: function (dir) {
@@ -261,6 +286,18 @@ var FileManager = React.createClass({
         }
     },
 
+    handleDev: function(e){
+        var $el = $(e.currentTarget),
+            curFileName = $el.next().text(),
+            target = this.state.currentDir + '/' + curFileName,
+            me = this;
+
+        this.dev(target, function(r){
+            alert('部署成功，请打开控制台查看日志');
+            console.log(r.msg);
+        });
+    },
+
     del: function(target, callback){
         $.ajax({
             type: 'POST',
@@ -277,6 +314,22 @@ var FileManager = React.createClass({
         });
     },
 
+    dev: function(target, callback){
+        $.ajax({
+            type: 'POST',
+            url: 'develop.html',
+            data: {
+                absPath: target
+            }   
+        }).done(function(r){
+            if ( r.status ) {
+                callback && callback(r);
+            } else {
+                alert('Dev Error！Msg: ' + r.msg);
+            }
+        });
+    },
+
     render: function(){
         var files = this.state.files,
             len = files.length,
@@ -287,11 +340,19 @@ var FileManager = React.createClass({
             var file = files[i],
                 cls = file.isDir ? 'cat-dir' : 'cat-file';
 
+            var bol = (
+                !file.isDir && 
+                file.name.lastIndexOf('.zip') == (file.name.length - 4) && 
+                file.name.indexOf('fe-') == 0 );
+
+
             fileList.push(
                 <li className={cls} onClick={this.handleItemClick}>
                     {!file.isDir && <span onClick={this.handleDel} className="del" data-idx={i}>删除</span>}
 
-                    {file.name}
+                    {bol && <span onClick={this.handleDev} className="dev">解压部署</span>}
+
+                    <span className="file-name" title={file.name}>{file.name}</span>
                 </li>);
         }
 

@@ -5,12 +5,12 @@ var config = require('./config'),
 
 function home(response, postData) {
     response.writeHead(200, {'Content-Type': 'text/html'});
-    response.end(fs.readFileSync('./static/index.html'));
+    response.end(fs.readFileSync('./static/dev.html'));
 }
 
 function dev(response, postData) {
     response.writeHead(200, {'Content-Type': 'text/html'});
-    response.end(fs.readFileSync('./static/dev.html'));
+    response.end(fs.readFileSync('./static/index.html'));
 }
 
 function getDir(response, postData, query){
@@ -21,7 +21,7 @@ function getDir(response, postData, query){
         isDirAvailable = checkDir(queryDir),
         uploadDir;
 
-    uploadDir = isDirAvailable ? queryDir : path.join(__dirname, configDir);
+    uploadDir = isDirAvailable ? queryDir : configDir;
 
     fs.readdir(uploadDir, function(err, files){
         if ( err ) {
@@ -55,7 +55,7 @@ function getDir(response, postData, query){
 
 function checkDir (dir) {
     //如果请求查询的路径(queryDir)存在 并且 请求查询的路径是配置路径（configDir）的子目录
-    return ( dir && dir.indexOf(path.join(__dirname,config.upload_dir)) == 0);
+    return ( dir && dir.indexOf(config.upload_dir) == 0);
 }
 
 function upload(response, postData) {
@@ -148,6 +148,55 @@ function del(response, postData, query){
     });
 }
 
+
+function avalibleDir(dir, callback){
+    var isDirAvailable = checkDir(dir);
+
+    fs.exists(dir, function(isExist){
+        if ( isExist && isDirAvailable ) {
+            callback && callback(true);
+        } else {            
+            callback && callback(false);
+        }
+    });
+}
+
+
+function develop(response, postData, query){
+    postData = querystring.parse(postData)
+
+    var dp = require('./app/develop.js'),
+        absPath = postData.absPath;
+
+
+    avalibleDir(absPath, function(bol){
+        if ( bol && aa(absPath) ) {
+            dp(absPath, function(error, stdout, stderr){
+                if ( error ) {
+                    resJSON(response, error);
+                } else {
+                    resJSON(response, {
+                        status: 1,
+                        data: {},
+                        msg: stdout
+                    });
+                }
+            });
+        } else {
+            resJSON(response, {
+                status: 0,
+                data:{},
+                msg: '路径错误'
+            });
+        }
+    });
+
+
+    function aa(dir){
+        return ( fs.statSync(dir).isFile() && path.extname(dir) == '.zip' && dir.indexOf('fe-') )
+    }
+}
+
 function resJSON(res, data){
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(data));
@@ -155,6 +204,7 @@ function resJSON(res, data){
 
 
 exports.del = del;
+exports.develop = develop;
 exports.dev = dev;
 exports.home = home;
 exports.upload = upload;

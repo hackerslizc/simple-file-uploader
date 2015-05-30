@@ -6,7 +6,7 @@ var config = {
 
 exports.port = config.port;
 exports.overideFile = config.overideFile;
-exports.upload_dir = config.base_dir || './uploads';
+exports.upload_dir = config.base_dir || (__dirname + '/uploads');
 
 exports.s3 = {
 	key: '',
