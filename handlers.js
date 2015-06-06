@@ -115,6 +115,7 @@ function serveStatic(response, pathname, postData) {
     var extension = pathname.split('.').pop(),
         extensionTypes = {
             'css' : 'text/css',
+            'html' : 'text/html',
             'gif' : 'image/gif',
             'jpg' : 'image/jpeg',
             'jpeg': 'image/jpeg',
@@ -128,7 +129,7 @@ function serveStatic(response, pathname, postData) {
 
 
 function del(response, postData, query){
-    //var rimraf = require('rimraf');
+    var rimraf = require('rimraf');
 
     postData = querystring.parse(postData);
 
@@ -138,7 +139,7 @@ function del(response, postData, query){
     fs.exists(tarDir, function(isExist){
         console.log(isExist, isDirAvailable);
         if ( isExist && isDirAvailable ) {            
-            fs.unlink(tarDir, function(r){
+            rimraf(tarDir, function(r){
                 console.log((new Date).toJSON() + ' 删除了文件：', tarDir);
                 resJSON(response, {status: 1, data: {}, msg: ''});
             });

@@ -1,0 +1,21 @@
+{
+  "name": "dev-tools-with-flux",
+  "version": "1.0.0",
+  "description": "A simple tools for develop in ther server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "browserify": {
+    "transform": [
+      "reactify"
+    ]
+  },
+  "author": "fiture",
+  "license": "ISC",
+  "dependencies": {
+    "flux": "^2.0.3",
+    "react": "^0.13.3",
+    "reactify": "^1.1.1"
+  }
+}
