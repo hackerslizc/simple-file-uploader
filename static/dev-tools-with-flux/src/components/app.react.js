@@ -9,11 +9,18 @@ var App = React.createClass({
         return Store.getAll()
     },
     componentDidMount: function() {
+        //console.log(this.props.hash);
+        this.refs.fileManager.loadDirInfo(this.props.hash)
         Store.addChangeListener(this._onChange);
     },
 
     componentWillUnmount: function() {
         Store.removeChangeListener(this._onChange);
+    },
+
+    componentWillReceiveProps: function(props){
+        //console.log(props.hash);
+        this.refs.fileManager.loadDirInfo(props.hash)
     },
 
     _onChange: function(){
@@ -28,7 +35,7 @@ var App = React.createClass({
                 <h2 style={{fontSize: '16px'}}>当前上传路径：{currentDir}</h2>
                 <div>
                     <aside className="file-manager">
-                        <FileMananger currentDir={currentDir} files={Store.getCurrentDirFileList()}/>
+                        <FileMananger currentDir={currentDir} files={Store.getCurrentDirFileList()} ref="fileManager"/>
                     </aside>
                     <div className="main">
                         <Uploader files={Store.getUploaderFileList()} currentDir={Store.getCurrentDir()} />

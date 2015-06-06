@@ -69,7 +69,8 @@ var FileManager = React.createClass({
             target;
 
         if ( isDir ) {
-            this.changeDir(name);
+            window.location.hash = this.props.currentDir + '/' + name;
+            //this.changeDir(name);
         }
     },
 
@@ -81,7 +82,8 @@ var FileManager = React.createClass({
         e.preventDefault();
         var cur = this.props.currentDir,
             dir = cur.substring(0, cur.lastIndexOf('/'));
-        this.loadDirInfo(dir);
+        window.location.hash = dir;
+        //this.loadDirInfo(dir);
     },
 
     changeDir: function(target){
