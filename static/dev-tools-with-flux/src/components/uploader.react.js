@@ -85,6 +85,7 @@ var Uploader = React.createClass({
         file.uploaded = 100;
         file.status = 'uploaded';
 
+        AppActions.fileUploaded(file);
         AppActions.updateFileByIdx(this.fileIdx, file);
 
         this.onUploading = false;

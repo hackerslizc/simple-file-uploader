@@ -5,31 +5,14 @@ var React = require('react'),
     AppActions = require('../actions/app-actions');
 
 var FileManager = React.createClass({
-    getInitialState: function(){
-        return  {
-            files: [],
-            currentDir: ''
-        }
-    },
-
     componentDidMount: function(){
-        var me = this;
-
         this.loadDirInfo();
-
-        //获取上传完成的files
-
-        function fileExits(file){
-            for ( var i in me.props.files ) {
-                if ( me.props.files[i].name === file.name) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
     },
-
+ 
+    /**
+     *  获取目录文件列表
+     *  @param {string} dir
+     */
     loadDirInfo: function (dir) {
         dir = dir || '';
         GetAjax({
@@ -39,18 +22,26 @@ var FileManager = React.createClass({
         })
     },
 
+    /**
+     *  目录获取成功回调，调用 AppActions 更新数据
+     *  @param {obj} data
+     */
     onDirLoaded: function(data){
         !this.oriDir && (this.oriDir = data.currentDir);
         AppActions.updateFileManagerData(data);
     },
 
+    /**
+     *  点击删除按钮回调
+     *  @param {number} idx: 当前点击对象在fileList中的索引
+     */
     handleDel: function(idx){
         var files = this.getFiles(),
             curFileName = files[idx].name,
             target = this.props.currentDir + '/' + curFileName,
             me = this;
 
-        var bol = confirm('确定删除文件 ' + curFileName + ' ？');
+        var bol = confirm('您确定要删除 ' + curFileName + ' ？');
 
         if ( bol ) {
             this.del(target, function(){
@@ -60,11 +51,16 @@ var FileManager = React.createClass({
                     files: me.props.files
                 });
 
-                //prependMsg('删除' + curFileName + '成功');
+                AppActions.addLog('删除 "' + curFileName + '"成功');
             });
         }
     },
 
+    /**
+     *  点击列表回调函数
+     *  @param {e} e: 点击事件对象
+     *  @param {idx} idx: 点击对象的当前索引
+     */
     handleItemClick: function(e, idx){
         var el = e.currentTarget,
             files = this.getFiles(),
@@ -77,6 +73,10 @@ var FileManager = React.createClass({
         }
     },
 
+    /**
+     *  回退按钮回调
+     *  @param {e} e: 点击事件对象
+     */
     handleBack: function(e){
         e.preventDefault();
         var cur = this.props.currentDir,
@@ -89,7 +89,10 @@ var FileManager = React.createClass({
         this.loadDirInfo(newDir);
     },
 
-
+    /**
+     *  部署按钮点击回调
+     *  @param {idx} idx: 点击对象索引
+     */
     handleDev: function(idx){
         var files = this.getFiles(),
             target = this.props.currentDir + '/' + files[idx].name,
@@ -97,11 +100,16 @@ var FileManager = React.createClass({
 
         this.dev(target, function(r){
             me.loadDirInfo(me.props.currentDir);
-            //prependMsg(r.msg);
-            //prependMsg('部署成功！');
+            AppActions.addLog(r.msg);
+            AppActions.addLog('部署成功！');
         });
     },
 
+    /**
+     *  删除
+     *  @param {string} target 删除路径
+     *  @param {function} callback
+     */
     del: function(target, callback){
         PostAjax({
             url: '/del',
@@ -119,6 +127,11 @@ var FileManager = React.createClass({
         });
     },
 
+    /**
+     *  解压部署 文件
+     *  @param {string} target 部署对象路径
+     *  @param {function} callback
+     */
     dev: function(target, callback){
         PostAjax({
             url: '/develop',
@@ -136,6 +149,10 @@ var FileManager = React.createClass({
         });
     },
 
+    /**
+     *  获取当前文件列表
+     *  @return {array} files: 当前文件列表数组
+     */
     getFiles: function(){
         return this.props.files || [];
     },
@@ -146,8 +163,6 @@ var FileManager = React.createClass({
             fileList = [],
             currentDir = this.props.currentDir,
             showBackNav = (this.oriDir != currentDir);
-
-        console.log(showBackNav);
 
         for ( var i = 0; i<len; i++) {
             var file = files[i],
@@ -160,7 +175,7 @@ var FileManager = React.createClass({
 
 
             fileList.push(
-                <FileItem name={file.name} cls={cls} key={i} showDev={bol} idx={i} key={i} 
+                <FileItem name={file.name} cls={cls} showDev={bol} idx={i} key={i} 
                 handleItemClick={this.handleItemClick} 
                 handleDev={this.handleDev} 
                 delFn={this.handleDel} />
@@ -170,18 +185,16 @@ var FileManager = React.createClass({
         return (
             <dl>
                 <dt>
-                    <p>上传路径：{currentDir}</p>
+                    <p>当前路径文件列表：</p>
                 </dt>
                 <dd>
-                    <p>当前路径文件列表：</p>
                     <ul className="file-list" onClick={this.handleClick}>
                         {
                             showBackNav &&
                             <p><a href="#" onClick={this.handleBack}>返回上一级目录</a></p>
                         }
-                        {
-                            fileList.length ? fileList : '当前目录为空'
-                        }
+
+                        { fileList.length ? fileList : '当前目录为空' }
                     </ul>
                 </dd>
             </dl>

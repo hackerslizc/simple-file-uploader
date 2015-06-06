@@ -22,14 +22,19 @@ var App = React.createClass({
     },
 
     render: function(){
+        var currentDir = Store.getCurrentDir();
         return (
             <div>
-                <aside className="file-manager">
-                    <FileMananger currentDir={Store.getCurrentDir()} files={Store.getCurrentDirFileList()}/>
-                </aside>
-                <div className="main">
-                    <Uploader files={Store.getUploaderFileList()} currentDir={Store.getCurrentDir()} />
+                <h2 style={{fontSize: '16px'}}>当前上传路径：{currentDir}</h2>
+                <div>
+                    <aside className="file-manager">
+                        <FileMananger currentDir={currentDir} files={Store.getCurrentDirFileList()}/>
+                    </aside>
+                    <div className="main">
+                        <Uploader files={Store.getUploaderFileList()} currentDir={Store.getCurrentDir()} />
+                    </div>
                 </div>
+                <pre className="msg-console">{Store.getLog()}</pre>
             </div>
         );
     }

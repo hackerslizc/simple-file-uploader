@@ -4,6 +4,7 @@ var AppDispatcher = require('../dispatcher/app-dispatcher'),
 
 var _store = {
         showLogs: false,
+        logs:'',
         currentDir: '',
         uploaderFiles: [],
         currentDirFiles: []
@@ -14,6 +15,10 @@ var _store = {
 AppStore = {
     getAll: function(){
         return _store;
+    },
+
+    getLog: function(){
+        return _store.logs;
     },
 
     addChangeListener: function(callback){
@@ -63,6 +68,28 @@ function updateFileMananger(data){
     }
 }
 
+function addFileToCurFileList(file){    
+    if ( !fileExits(file) ) {
+        _store.currentDirFiles.push({
+            name: file.name,
+            isDir: false
+        });
+    }
+}
+
+function addLog(log){
+    _store.logs = ('\n' + log + _store.logs);
+}
+
+function fileExits(file){
+    for ( var i in _store.currentDirFiles ) {
+        if ( _store.currentDirFiles[i].name === file.name) {
+            return true;
+        }
+    }
+    return false;
+}
+
 Events.mixTo(AppStore);
 
 AppDispatcher.register(function (payload) {
@@ -79,6 +106,16 @@ AppDispatcher.register(function (payload) {
 
         case 'update-file-mananger':
             updateFileMananger(payload.data);
+            AppStore.emitChange(CHANGE_EVT);
+        break;
+
+        case 'file-uploaded':
+            addFileToCurFileList(payload.file);
+            AppStore.emitChange(CHANGE_EVT);
+        break;
+
+        case 'add-log':
+            addLog(payload.log);
             AppStore.emitChange(CHANGE_EVT);
         break;
     }

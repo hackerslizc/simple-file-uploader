@@ -34,6 +34,28 @@ var AppActions = {
             actionType: 'update-file-mananger',
             data: data
         });
+    },
+
+    /**
+     *  文件上传成功事件
+     *  @param {number} idx
+     */
+    fileUploaded: function(file){
+        AppDispatcher.dispatch({
+            actionType: 'file-uploaded',
+            file: file
+        });
+    },
+
+    /**
+     *  添加日志记录
+     *  @param {string} log
+     */
+    addLog: function(log){
+        AppDispatcher.dispatch({
+            actionType: 'add-log',
+            log: log
+        });
     }
 };
 

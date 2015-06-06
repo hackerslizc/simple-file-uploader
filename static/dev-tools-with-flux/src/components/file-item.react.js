@@ -28,7 +28,6 @@ var File = React.createClass({
             name = this.props.name,
             showDev = this.props.showDev;
 
-
         return (
             <li className={cls} onClick={this.handleItemClick} data-idx={this.props.idx}>
                 <span className="file-name" title={name}>{name}</span>
