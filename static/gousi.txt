@@ -1,0 +1,31 @@
+currentDir              -- 当前路径
+
+uploaderFileList        -- 上传文件列表
+
+    fileItem:
+        uploadStatus(ready/uploading/uploadSuccess/uploadFail)
+        uploadProgress(0-100)
+
+currentDirFileList      -- 当前路径文件夹列表
+
+showLog                 -- 是否显示日志
+
+
+
+FileManager             -- 文件管理器组件
+
+Uploader                -- 文件上传组件
+
+Main                    -- 主视图
+
+
+Dispatcher  Action Store Views
+
+
+Views -->(用户动作/Ajax) --> Action  -->(调用Dispatcher)  Dispatcher
+                                                       |
+                                                       | 
+                                            (Store 注册一些事件回调)  --> Store（更新数据） 
+                                                                        |
+                                                                        |
+View (View 监听Store的变化，setState(getStateFromStore())) <---------------

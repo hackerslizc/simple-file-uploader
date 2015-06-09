@@ -5,7 +5,7 @@ var config = require('./config'),
 
 function home(response, postData) {
     response.writeHead(200, {'Content-Type': 'text/html'});
-    response.end(fs.readFileSync('./static/dev.html'));
+    response.end(fs.readFileSync('./static/flux.html'));
 }
 
 function dev(response, postData) {
