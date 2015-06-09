@@ -1,0 +1,113 @@
+body,html,div,ul,li,dt,dl,dd,p,span {
+    margin: 0;
+    padding: 0;
+}
+
+ul,ol,li {
+    list-style: none;
+}
+
+body {
+    background: #eee;
+    color: #666;
+    font-size: 14px;
+}
+
+
+.file-manager,
+.drag-area {
+    height: 400px;
+    background: #fff;
+    border: 2px dashed #aaa;
+}
+
+.upload-tip {
+    display: block;
+    text-align: center;
+    top: 50%;
+    position: relative;
+    margin-top: -7px;
+}
+
+.file-list > li{
+    background: #f8f8f8;
+    color: #4183c4;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+}
+
+.fn-left {
+    float: left;
+}
+
+.file-list .status {
+    color: #999;
+    font-size: 12px;
+}
+
+.file-manager {
+    border-color: #fff;
+
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.file-manager li.cat-dir {
+    color: blue;
+    cursor: pointer;
+}
+
+.file-manager li.cat-dir:hover {
+    text-decoration: underline;
+}
+
+.container {
+    width: 990px;
+    margin: auto;
+    overflow: hidden;
+}
+
+.container .file-manager {
+    float: left;
+    width: 300px;
+    height: 400px;
+    overflow: auto;
+}
+
+.container .main { 
+    margin-left: 320px;
+}
+
+.file-manager .file-list > li {
+    text-align: left;
+}
+
+.file-manager .file-list .ctl-btns {
+    float: right;
+    display: none;
+    cursor: pointer;
+}
+
+.file-manager .file-list .del {
+    margin-right: 5px;
+}
+
+.file-manager .file-list li:hover .ctl-btns {
+    display: inline;
+}
+
+.file-manager .file-name {
+    display: inline-block;
+    width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.msg-console {
+  max-height: 300px;
+  overflow: auto;
+  background: #fff;
+}
