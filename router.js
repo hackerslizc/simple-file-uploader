@@ -1,6 +1,6 @@
 function respondWithHTTPCode(response, code) {
 	response.writeHead(code, {'Content-Type': 'text/plain'});
-	response.end();
+	response.end('Error 404');
 }
 
 function route(handle, pathname, response, postData, query) {

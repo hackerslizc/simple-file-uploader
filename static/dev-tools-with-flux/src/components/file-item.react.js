@@ -8,7 +8,9 @@ var File = React.createClass({
     },
 
     handleItemClick: function(e){
-        this.noop(e);
+        if ( e.currentTarget.className == 'cat-dir') {
+            this.noop(e);
+        }
         this.props.handleItemClick(e, this.getIdx(e));
     },
     noop: function(e){
@@ -26,11 +28,16 @@ var File = React.createClass({
     render: function(){
         var cls = this.props.cls,
             name = this.props.name,
-            showDev = this.props.showDev;
+            showDev = this.props.showDev,
+            href = (cls === 'cat-file') ? this.props.staticPath + '/' + name : '#';
+
+            //console.log(this.props.staticPath, href);
 
         return (
             <li className={cls} onClick={this.handleItemClick} data-idx={this.props.idx}>
-                <span className="file-name" title={name}>{name}</span>
+            
+                <a className="file-name" title={name} href={href} target="_blank">{name}</a>
+
                 <span className="ctl-btns">
                     <a href="#" className="del" onClick={this.handleDel} 
                     data-idx={this.props.idx}>删除</a>

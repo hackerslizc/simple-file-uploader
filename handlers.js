@@ -4,13 +4,11 @@ var config = require('./config'),
     fs = require('fs');
 
 function home(response, postData) {
-    response.writeHead(200, {'Content-Type': 'text/html'});
-    response.end(fs.readFileSync('./static/flux.html'));
+    serveStatic(response, 'flux.html');
 }
 
 function dev(response, postData) {
-    response.writeHead(200, {'Content-Type': 'text/html'});
-    response.end(fs.readFileSync('./static/index.html'));
+    serveStatic(response, 'index.html');
 }
 
 function getDir(response, postData, query){
@@ -110,9 +108,10 @@ function upload(response, postData) {
     }
 }
 
-function serveStatic(response, pathname, postData) {
+function serveStatic(response, pathname) {
 
     var extension = pathname.split('.').pop(),
+        staticPath = path.join('./static', pathname),
         extensionTypes = {
             'css' : 'text/css',
             'html' : 'text/html',
@@ -122,9 +121,17 @@ function serveStatic(response, pathname, postData) {
             'js'  : 'application/javascript',
             'png' : 'image/png'
         };
-    
-    response.writeHead(200, {'Content-Type': extensionTypes[extension]});
-    response.end(fs.readFileSync('./static' + pathname));
+
+    fs.stat(staticPath, function(err, stats){
+        if ( !err ) {
+            response.writeHead(200, {'Content-Type': extensionTypes[extension]});
+            response.end(fs.readFileSync(staticPath));
+        } else {            
+            response.writeHead(404, {'Content-Type': 'text/plain'});
+            response.end('Error 404');
+        }
+    });
+
 }
 
 

@@ -168,7 +168,9 @@ var FileManager = React.createClass({
 
         for ( var i = 0; i<len; i++) {
             var file = files[i],
-                cls = file.isDir ? 'cat-dir' : 'cat-file';
+                cls = file.isDir ? 'cat-dir' : 'cat-file',
+                staticPath = 'http://172.25.47.49' + currentDir.replace(this.oriDir, '');
+
 
             var bol = (
                 !file.isDir && 
@@ -178,6 +180,7 @@ var FileManager = React.createClass({
 
             fileList.push(
                 <FileItem name={file.name} cls={cls} showDev={bol} idx={i} key={i} 
+                staticPath = {staticPath}
                 handleItemClick={this.handleItemClick} 
                 handleDev={this.handleDev} 
                 delFn={this.handleDel} />

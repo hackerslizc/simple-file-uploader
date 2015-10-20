@@ -4,6 +4,7 @@
   "description": "A simple tools for develop in ther server.",
   "main": "index.js",
   "scripts": {
+    "start": "watchify -o dist/bundle.js -v -d src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "browserify": {

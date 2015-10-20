@@ -98,11 +98,17 @@ body {
 }
 
 .file-manager .file-name {
+    cursor: pointer;
+    text-decoration: none;
     display: inline-block;
     width: 210px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.file-manager .cat-file .file-name {
+    color: #666;
 }
 
 
